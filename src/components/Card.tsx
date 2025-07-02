@@ -175,19 +175,10 @@ export const Card: React.FC<CardProps> = ({ question, isTop = false, zIndex, onS
 
         {/* Question content with solid white background */}
         <div className="p-8 h-full flex items-center justify-center bg-white">
-          <div className="text-center">
+          <div className="text-center pb-20">
             <p className="text-2xl leading-relaxed text-gray-800 font-medium">
               {question.text}
             </p>
-            
-            {isTop && (
-              <div className="mt-8 flex justify-center">
-                <div className="px-6 py-3 bg-gray-100 rounded-full text-sm text-gray-600 font-medium">
-                  <span className="hidden sm:inline">Swipe or tap to get another question</span>
-                  <span className="sm:hidden">Swipe for another question</span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
