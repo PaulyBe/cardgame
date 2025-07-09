@@ -87,7 +87,31 @@ export const CardStack: React.FC = () => {
             <span className="sm:hidden">Deep</span>
           </div>
         </div>
-        
+
+        {/* Buttons to choose light, medium or deep */}
+        <div className="mt-4 sm:hidden text-s text-gray-500 max-w-xs mx-auto">
+          Choose Mode:
+        </div>
+        <div className="mt-4 flex justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500 flex-wrap">
+        <button
+          // onClick={swipeCard}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+        >
+          Light
+        </button>
+        <button
+          // onClick={swipeCard}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-purple-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+        >
+          Medium
+        </button>
+        <button
+          // onClick={swipeCard}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-pink-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95"
+        >
+          Deep
+        </button>
+        </div>
         {/* Mobile instructions */}
         <div className="mt-4 sm:hidden text-xs text-gray-400 max-w-xs mx-auto">
           Swipe cards in any direction or tap the button above for new questions

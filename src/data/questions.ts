@@ -58,7 +58,7 @@ export const questions: Question[] = [
   { id: 54, text: "What's a common misconception about you?", category: 'light' },
 
   // Medium questions
-  { id: 55, text: "What's a historical period you'd love to live in in for a day?", category: 'medium' },
+  { id: 55, text: "What's a historical period you'd love to live in for a day?", category: 'medium' },
   { id: 56, text: "What's a small victory you celebrated recently?", category: 'medium' },
   { id: 57, text: "What's a type of art or creative expression you enjoy?", category: 'medium' },
   { id: 58, text: "What's a fun fact about your hometown or where you grew up?", category: 'medium' },
