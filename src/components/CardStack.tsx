@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card } from './Card';
 import { useCardStack } from '../hooks/useCardStack';
-import { RefreshCw, Users, Smartphone } from 'lucide-react';
+import { Users, Smartphone, MessageCircle, Heart, Sparkles } from 'lucide-react';
 
 export const CardStack: React.FC = () => {
-  const { currentQuestions, swipeCard, mode, setMode } = useCardStack();
+  const { currentQuestions, swipeCard, categoryFilter, setFilter } = useCardStack();
 
   const handleCardClick = () => {
     swipeCard();
@@ -25,6 +25,7 @@ export const CardStack: React.FC = () => {
         <p className="text-gray-600 max-w-md mx-auto">
           Meaningful questions to spark deeper conversations and stronger connections
         </p>
+        
         {/* Mobile swipe hint */}
         <div className="mt-4 sm:hidden flex items-center justify-center gap-2 text-sm text-gray-500">
           <Smartphone size={16} />
@@ -38,6 +39,7 @@ export const CardStack: React.FC = () => {
           {/* Background decorative elements */}
           <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-200/30 rounded-full blur-xl"></div>
           <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-purple-200/30 rounded-full blur-xl"></div>
+          
           {/* Cards */}
           {currentQuestions.map((question, index) => (
             <Card
@@ -48,6 +50,7 @@ export const CardStack: React.FC = () => {
               onSwipe={swipeCard}
             />
           ))}
+
           {/* Tap area for non-touch devices - hidden on mobile */}
           <div
             className="absolute inset-0 cursor-pointer z-10 hidden sm:block"
@@ -59,57 +62,58 @@ export const CardStack: React.FC = () => {
 
       {/* Footer */}
       <div className="p-6 text-center">
-        <button
-          onClick={() => setMode({ type: 'all' })}
-          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95 ${mode.type === 'all' ? 'ring-4 ring-indigo-200' : ''}`}
-        >
-          <RefreshCw size={20} />
-          New Question
-        </button>
-        <div className="mt-4 flex justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500 flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-            <span className="hidden sm:inline">Light & Fun</span>
-            <span className="sm:hidden">Light</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-            <span className="hidden sm:inline">Getting Deeper</span>
-            <span className="sm:hidden">Medium</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-pink-400 rounded-full"></div>
-            <span className="hidden sm:inline">Deep Connection</span>
-            <span className="sm:hidden">Deep</span>
+        {/* Category Filter Buttons */}
+        <div className="mb-6">
+          <div className="flex justify-center gap-2 sm:gap-3 mb-4">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                categoryFilter === 'all'
+                  ? 'bg-gray-800 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter('light')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                categoryFilter === 'light'
+                  ? 'bg-blue-500 text-white shadow-lg'
+                  : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+              }`}
+            >
+              <MessageCircle size={16} />
+              Light
+            </button>
+            <button
+              onClick={() => setFilter('medium')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                categoryFilter === 'medium'
+                  ? 'bg-purple-500 text-white shadow-lg'
+                  : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+              }`}
+            >
+              <Heart size={16} />
+              Medium
+            </button>
+            <button
+              onClick={() => setFilter('deep')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                categoryFilter === 'deep'
+                  ? 'bg-pink-500 text-white shadow-lg'
+                  : 'bg-pink-100 text-pink-600 hover:bg-pink-200'
+              }`}
+            >
+              <Sparkles size={16} />
+              Deep
+            </button>
           </div>
         </div>
-        {/* Buttons to choose light, medium or deep */}
-        <div className="mt-4 sm:hidden text-s text-gray-500 max-w-xs mx-auto">
-          Choose Mode:
-        </div>
-        <div className="mt-4 flex justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500 flex-wrap">
-          <button
-            onClick={() => setMode({ type: 'category', category: 'light' })}
-            className={`inline-flex items-center gap-2 px-6 py-3 bg-blue-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95 ${mode.type === 'category' && mode.category === 'light' ? 'ring-4 ring-blue-200' : ''}`}
-          >
-            Light
-          </button>
-          <button
-            onClick={() => setMode({ type: 'category', category: 'medium' })}
-            className={`inline-flex items-center gap-2 px-6 py-3 bg-purple-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95 ${mode.type === 'category' && mode.category === 'medium' ? 'ring-4 ring-purple-200' : ''}`}
-          >
-            Medium
-          </button>
-          <button
-            onClick={() => setMode({ type: 'category', category: 'deep' })}
-            className={`inline-flex items-center gap-2 px-6 py-3 bg-pink-400 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 active:scale-95 ${mode.type === 'category' && mode.category === 'deep' ? 'ring-4 ring-pink-200' : ''}`}
-          >
-            Deep
-          </button>
-        </div>
+        
         {/* Mobile instructions */}
         <div className="mt-4 sm:hidden text-xs text-gray-400 max-w-xs mx-auto">
-          Swipe cards in any direction or tap the button above for new questions
+          Swipe cards in any direction for new questions
         </div>
       </div>
     </div>

@@ -2,81 +2,130 @@ import { useState, useCallback } from 'react';
 import { Question } from '../types';
 import { questions } from '../data/questions';
 
-// Mode: 'category' (single) or 'all' (one from each)
-type StackMode = { type: 'category', category: 'light' | 'medium' | 'deep' } | { type: 'all' };
-
+type CategoryFilter = 'all' | 'light' | 'medium' | 'deep';
 export const useCardStack = () => {
-  const [mode, setMode] = useState<StackMode>({ type: 'category', category: 'light' });
   const [usedQuestions, setUsedQuestions] = useState<Set<number>>(new Set());
-
-  // Helper to get questions for current mode
-  const getQuestionsForMode = useCallback((): Question[] => {
-    if (mode.type === 'category') {
-      return questions.filter(q => q.category === mode.category);
-    } else {
-      // One random from each category
-      const categories: ('light' | 'medium' | 'deep')[] = ['light', 'medium', 'deep'];
-      return categories.map(cat => {
-        const catQuestions = questions.filter(q => q.category === cat);
-        return catQuestions[Math.floor(Math.random() * catQuestions.length)];
-      }).filter(Boolean);
-    }
-  }, [mode]);
-
-  // Initial state
+  const [isInitialSequence, setIsInitialSequence] = useState(true);
+  const [initialCardCount, setInitialCardCount] = useState(0);
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
+  
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>(() => {
-    return questions.filter(q => q.category === 'light').sort(() => Math.random() - 0.5).slice(0, 3);
+    // Initialize with 2 light questions and 1 medium question
+    const lightQuestions = questions.filter(q => q.category === 'light');
+    const mediumQuestions = questions.filter(q => q.category === 'medium');
+    
+    const shuffledLight = [...lightQuestions].sort(() => Math.random() - 0.5);
+    const shuffledMedium = [...mediumQuestions].sort(() => Math.random() - 0.5);
+    
+    return [
+      shuffledLight[0], // First light question
+      shuffledLight[1], // Second light question  
+      shuffledMedium[0]  // First medium question
+    ];
   });
 
-  // When mode changes, update stack
-  const updateStackForMode = useCallback((newMode: StackMode) => {
-    setMode(newMode);
-    setUsedQuestions(new Set());
-    if (newMode.type === 'category') {
-      const categoryQuestions = questions.filter(q => q.category === newMode.category);
-      const shuffled = [...categoryQuestions].sort(() => Math.random() - 0.5);
-      setCurrentQuestions(shuffled.slice(0, 3));
-    } else {
-      // All categories: one random from each
-      const categories: ('light' | 'medium' | 'deep')[] = ['light', 'medium', 'deep'];
-      const selected: Question[] = categories.map(cat => {
-        const catQuestions = questions.filter(q => q.category === cat);
-        return catQuestions[Math.floor(Math.random() * catQuestions.length)];
-      }).filter(Boolean);
-      setCurrentQuestions(selected);
+  const getFilteredQuestions = useCallback((category: CategoryFilter): Question[] => {
+    if (category === 'all') {
+      return questions;
     }
+    return questions.filter(q => q.category === category);
   }, []);
 
-  // Swiping only works in category mode
   const getRandomQuestion = useCallback((): Question => {
-    if (mode.type !== 'category') return questions[0]; // fallback
-    const availableQuestions = questions.filter(q => q.category === mode.category && !usedQuestions.has(q.id));
-    const categoryQuestions = questions.filter(q => q.category === mode.category);
+    const filteredQuestions = getFilteredQuestions(categoryFilter);
+    const availableQuestions = filteredQuestions.filter(q => !usedQuestions.has(q.id));
+    
+    // If we've used all questions, reset
     if (availableQuestions.length === 0) {
       setUsedQuestions(new Set());
-      return categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+      return filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
     }
+    
     return availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-  }, [usedQuestions, mode]);
+  }, [usedQuestions, categoryFilter, getFilteredQuestions]);
 
+  const getNextInitialQuestion = useCallback((): Question => {
+    // If we have a category filter active, skip initial sequence and use filtered questions
+    if (categoryFilter !== 'all') {
+      return getRandomQuestion();
+    }
+    
+    // After the first 3 cards (2 light, 1 medium), we need to provide the next specific questions
+    if (initialCardCount === 3) {
+      // 4th card should be light
+      const lightQuestions = questions.filter(q => q.category === 'light' && !usedQuestions.has(q.id));
+      if (lightQuestions.length > 0) {
+        return lightQuestions[Math.floor(Math.random() * lightQuestions.length)];
+      }
+    } else if (initialCardCount === 4) {
+      // 5th card should be light  
+      const lightQuestions = questions.filter(q => q.category === 'light' && !usedQuestions.has(q.id));
+      if (lightQuestions.length > 0) {
+        return lightQuestions[Math.floor(Math.random() * lightQuestions.length)];
+      }
+    } else if (initialCardCount === 5) {
+      // 6th card should be medium
+      const mediumQuestions = questions.filter(q => q.category === 'medium' && !usedQuestions.has(q.id));
+      if (mediumQuestions.length > 0) {
+        return mediumQuestions[Math.floor(Math.random() * mediumQuestions.length)];
+      }
+    }
+    
+    // Fallback to random if specific category not available
+    return getRandomQuestion();
+  }, [initialCardCount, usedQuestions, getRandomQuestion, categoryFilter]);
+
+  const setFilter = useCallback((filter: CategoryFilter) => {
+    setCategoryFilter(filter);
+    
+    // Reset the stack with new filtered questions
+    const filteredQuestions = getFilteredQuestions(filter);
+    const shuffled = [...filteredQuestions].sort(() => Math.random() - 0.5);
+    
+    // Reset used questions and initial sequence when changing filter
+    setUsedQuestions(new Set());
+    setIsInitialSequence(filter === 'all'); // Only use initial sequence for 'all'
+    setInitialCardCount(0);
+    
+    // Set 3 new questions from the filtered set
+    setCurrentQuestions(shuffled.slice(0, 3));
+  }, [getFilteredQuestions]);
   const swipeCard = useCallback(() => {
-    if (mode.type !== 'category') return; // Only allow swipe in category mode
     setCurrentQuestions(prev => {
       const newQuestions = [...prev];
       const topQuestion = newQuestions.shift();
+      
       if (topQuestion) {
         setUsedQuestions(prev => new Set([...prev, topQuestion.id]));
       }
-      const newQuestion = getRandomQuestion();
+      
+      // Determine what type of question to add next
+      let newQuestion: Question;
+      
+      if (isInitialSequence && initialCardCount < 6 && categoryFilter === 'all') {
+        // We're still in the initial sequence, get the next specific question
+        newQuestion = getNextInitialQuestion();
+        setInitialCardCount(prev => prev + 1);
+        
+        if (initialCardCount >= 5) {
+          // After 6 total cards shown, switch to random
+          setIsInitialSequence(false);
+        }
+      } else {
+        // After initial sequence, use random questions
+        newQuestion = getRandomQuestion();
+      }
+      
       newQuestions.push(newQuestion);
+      
       return newQuestions;
     });
-  }, [getRandomQuestion, mode]);
+  }, [isInitialSequence, initialCardCount, getNextInitialQuestion, getRandomQuestion, categoryFilter]);
 
   return {
     currentQuestions,
     swipeCard,
-    mode,
-    setMode: updateStackForMode,
+    categoryFilter,
+    setFilter,
   };
 };
