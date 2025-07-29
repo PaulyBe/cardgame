@@ -1,0 +1,121 @@
+## types.txt:
+
+interface:
+-specifies the names and types of properties an object must (or can) have
+-purely for type-checking during development; doesnt generate any JS code
+
+Question:
+-id: property must be a number (unique ID)
+-text: is a string and will hold the actual question
+-category: possible categories the string (questions) can have
+
+CardProps:
+-question: must conform to the previously defined "Question" interface
+-isTop?: is the current question the top card? question mark inidicates property is optional
+-zIndex: must be a number
+-onSwipe: defines a callback function, called after swiping
+
+callback function:
+a function passed into another function as an argument, which is then executed inside the outer function at some point
+-> used to independently define a function/ asynchronous operations
+
+## questions.tsx:
+
+import the previously defined Question interface
+-> declared new const called "questions" that is an array, that adheres to the Question interface
+ -> ensures type checking
+
+## card.tsx:
+
+useState: Hook that lets you add state variables to functional components. State variables are values that can change over time and cause the component to re-render when they do.
+useRef: Hook that lets you reference a DOM element or a value that persists across renders without causing re-renders.
+useEffect: Hook that lets you synchronize a component with an external system. Used for adding and removing gloabl event listeners for drag functionality.
+
+const categoryConfig: constant JavaScript obkect that serves as a lookup table or configuration for styling and content based on the question.category
+
+# const Card:
+React.FC: Card is a functional component, that expects its props to conform to the CardProps interface
+({ question, isTop = false, zIndex, onSwipe }): This is destructuring assignment for the component's props.
+
+isDragging: Tracks wether the user is currently dragging the card. Default to false
+dragOffset: Object that stores the current horizontal and vertical displacement of the card from its starting position during dragging.
+startPos: Stores the coordinates where the drag operation started. Used to calculate the dragOffset
+cardRef: Ref object, that is attached to the main div element of the card. Specified to point to an HTML element.
+
+config: selects the appropriate configuration object from the previously defined categoryConfig
+IconComponent: extracts the icon, based on the category
+
+# Drag Logic Handlers: Handle the logic for handling the start, move and end of a drag
+
+handleStart
+handleMove
+handleEnd
+
+# Mouse and Touch Event Handlers: Directly attached to DOM and call the drag logic Handlers
+
+handleMouseDown
+handleMouseMove
+handleMouseUp
+
+handleTouchStart
+handleTouchMove
+handleTouchEnd
+
+# useEffect for Global Event Listeners:
+
+Runs its effects function whenever isDragging changes
+
+# Dynamic Styles: Creates the visual effect of the card stack
+
+Calculate CSS values dynamically based on the cards state
+
+# return ( <div>):
+
+-attaches cardRef to this element, to allow direct DOM access
+-> inner div: styling of the visual card
+
+## useCardStack.tsx:
+
+useCallback: Hook to memorize functions. Prevents functions from being re-created on every render.
+
+type CategoryFilter: ensures type safety when dealing with category filtering.
+
+# export const useCardStack:
+
+usedQuestions: a Set that stores the ids of used questions.
+isInitialSequence: a boolean indication, whether the card stack is currently in its predefined initial sequence of questions.
+initialCardCount: a number that tracks, how many cards have been shown during the isInitialSequence phase.
+categoryFilter: stores the current active category filter.
+
+currentQuestions: array of questions visible or in the immediate stack.
+
+return: returns by default two light and one medium question. after that its random
+
+const getFilteredQuestions: wrapped in useCallback, to prevent them from being re-created on every render.
+-> gets relevant questions based on current filter
+
+getRandomQuestion: returns a random question, that has not been used yet, within the selected category.
+
+if (availableQuestions): reset the Set and return a random question from the filteredQuestions set.
+
+const getNextInitialQuestion: provides the next specific question during the initial predefined sequence, or falls back to random question.
+
+const setFilter: sets the new categoryFilter and resets the card stack accordingly.
+
+const swipeCard: handles the logic if a card is swiped from the stack.
+
+return: returns an object containing the previously defined state and behaviour.
+
+## CardStack.tsx:
+
+import React: imports the core React library, necessary for defining React components and using JSX.
+
+# export const CardStack: makes the CardStack component available for other parts of the application.
+
+const handleCardClick: allows users to click instead of draggin on non-touch devices.
+
+return: visual structure of the Header, CardStack, Cards & Footer
+
+->CardStack: brings together the data and logic from useCardStack and the visual representation of individual Card components, to create the complete interactive question-swiping app.
+
+

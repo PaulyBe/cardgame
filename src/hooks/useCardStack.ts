@@ -19,7 +19,7 @@ export const useCardStack = () => {
     
     return [
       shuffledLight[0], // First light question
-      shuffledLight[1], // Second light question  
+      shuffledLight[1], // Second light question
       shuffledMedium[0]  // First medium question
     ];
   });
